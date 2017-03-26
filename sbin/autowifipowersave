@@ -1,0 +1,77 @@
+#!/bin/sh
+# Filename: "/sbin/autowifi"
+# set cronjob to every 15 minutes:
+# */15 * * * * /sbin/autowifi
+
+LOGName=autowifipowersave      # Log dosyası ön ad
+LOG=/tmp/$LOGName.log 		   # Log dosyası tam konum
+
+# Ftp bilgileri
+FTPIP=memo242.125mb.com
+FTPUSER=889253_cakirefe
+FTPPASS=kendal.2016
+FTPDIZIN=OpenwrtAutoWifi
+
+# script hala çalışıyormu? çalışıyorsa çık
+if [ "$(ps | grep -c 'autowifipowersave')" -gt 4 ];	# -gt 3 --> greater than 1= grep + kendisi + tekrar kendisi
+then
+echo "autowifipowersave processes olarak calisiyor. Rahatsiz etmeden cikalim :)"
+exit 0
+fi
+
+# LOG dosyası mevcutmu kontrol et yoksa indir
+if [ -f "$LOG" ]
+then
+	echo "Log dosyasi zaten var. Devam ettiriliyor..."
+else
+	if [ -z "$(wget -O $LOG ftp://$FTPUSER:$FTPPASS@$FTPIP/$FTPDIZIN/$LOGName-$(date -I).log 2>&1 | grep '^wget: bad response to RETR: 550 ')" ] # Ftp indirme-hata tespiti
+	then
+		if [ -f "$LOG" ] # İndirme işi başarılı ise dosya var kontrolü yap yoksa exit yap
+		then
+		echo "Log dosyasi FTP sunucudan indirildi. Devam ediliyor..."
+		else
+		echo "Dosya indirmesinde hatalar var. Exit..."
+		#exit 0	#FTP sunucusu kurulana kadar böyle devam edecek (geciçi bir süreliğine)
+		fi
+	else
+	echo "FTP de dosya bulunamadi.. Devam ediliyor... (Ilk kez olusturma)"
+	fi
+fi
+
+SW=$(ifconfig 2>/dev/null | grep AP)
+echo $(date) >> ${LOG}
+
+if [ -z "$SW" ] # check if wifi is on
+then
+  echo "Wifi is already OFF" >> ${LOG}
+		# ÇBP ->60 saniye boyunca txpower 20dbm (EIRP Turkey) olarak açık kal 120 saniye wifi down olarak kal
+ 	wifi && sleep 4 && iw phy0 set txpower limit 2000 && sleep 56	# 14s win xp ip alıyor 18s Cirali every 60s 40s every 120s
+  if [ -z "$(iw dev AP station dump | tr -d '\n')" ]; then
+	wifi down	# Check if anyone is connected else wifi down timeout 120 second
+  fi	# SON
+else
+  echo "Wifi is ON" >> ${LOG}
+  if [ -z "$(iw dev AP station dump | tr -d '\n')" ] # Check if anyone is connected
+  then
+    echo "No-one is connected" >> ${LOG}
+    case "$(cat /var/$LOGName)" in # check if anyone was connected xx mins ago (defined in cron)
+      1) 
+        echo "No-one is connected since some time, so turning wireless wifi down" >> ${LOG}
+	wifi down
+        # /sbin/wifi 2>/dev/null
+        cat </dev/null > /var/$LOGName
+      ;;
+      *)
+        echo "Someone was connected some time ago, so leaving wireless ON for now wifi down" >> ${LOG}
+        echo 1 > /var/$LOGName
+# ÇBP -> Extra
+	wifi down
+# Son
+      ;;
+    esac
+  else
+    echo "Someone is connected to AP (txpower auto) --> txpower fixed 2000 (UPDATE:15-02-2017)" >> ${LOG}
+    iw phy phy0 set txpower auto
+    cat </dev/null > /var/$LOGName
+  fi
+fi
