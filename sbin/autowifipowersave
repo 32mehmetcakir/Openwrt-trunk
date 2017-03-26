@@ -43,14 +43,14 @@ else
 fi
 
 echo $(date) >> ${LOG}
-SW=$(iw dev AP station dump | tr -d '\n')
-if [ -z "$SW" ] # check if wifi is on and connected users
+SW="iw dev AP station dump | tr -d '\n'"
+if [ -z "$($SW)" ] # check if wifi is on and connected users
 then
   echo "Wifi is already OFF" >> ${LOG}
 	# ÇBP ->60 saniye boyunca txpower 20dbm (EIRP Turkey) olarak açık kal 120 saniye wifi down olarak kal
 #	sh /sbin/wancheck.sh	# Wan0-WanX durumlarını kontrol et, aktif ya da pasif yap
- 	wifi && sleep 4 && iw phy0 set txpower limit 2000 && sleep 56	# 14s win xp ip alıyor 18s Cirali every 60s 40s every 120s
-  if [ -z "$SW" ] # recheck wifi is connected users?
+ 	wifi up && sleep 4 && iw phy0 set txpower limit 2000 && sleep 56	# 14s win xp ip alıyor 18s Cirali every 60s 40s every 120s
+  if [ -z "$($SW)" ] # recheck wifi is connected users?
   then
 	echo "No-one is connected" >> ${LOG}
 	wifi down	# Check if anyone is connected else wifi down timeout 120 second
