@@ -1,27 +1,18 @@
 #!/bin/sh
+#Kaynak1: https://www.cyberciti.biz/tips/howto-bash-ksh-find-return-length-of-string.html
+#Kaynak2: http://www.thegeekstuff.com/2010/06/bash-if-statement-examples
 # Filename: "/sbin/autowifi"
 # set cronjob to every 15 minutes:
 # */15 * * * * /sbin/autowifi
 
-PSNAME=/tmp/autowifipowersave.work	# Proses dosyasının konumu
-LOGName=autowifipowersave		# Log dosyası ön ad
-LOG=/tmp/$LOGName.log			# Log dosyası tam konum
+LOGName=autowifipowersave	# Log dosyası ön ad
+LOG=/tmp/$LOGName.log		# Log dosyası tam konum
 
 # Ftp bilgileri
 FTPIP=memo242.125mb.com
 FTPUSER=889253_cakirefe
 FTPPASS=kendal.2016
 FTPDIZIN=OpenwrtAutoWifi
-
-# script hala çalışıyormu? çalışıyorsa çık
-if [ -f "$PSNAME" ]
-then
-echo "autowifipowersave processes olarak calisiyor. Rahatsiz etmeden cikalim :)"
-exit 0
-else
-echo "autowifipowersave processes dosyası oluşturuldu."
-touch $PSNAME
-fi
 
 # LOG dosyası mevcutmu kontrol et yoksa indir
 if [ -f "$LOG" ]
@@ -43,22 +34,19 @@ else
 fi
 
 echo $(date) >> ${LOG}
-SW="iw dev AP station dump | tr -d '\n'"
-if [ -z "$($SW)" ] # check if wifi is on and connected users
+SW="iw dev AP station dump"
+if [ $(expr length "$($SW)") -eq 0 ] # check if wifi is on and connected users,	#Kaynak1, #Kaynak2
 then
-  echo "Wifi is already OFF" >> ${LOG}
-	# ÇBP ->60 saniye boyunca txpower 20dbm (EIRP Turkey) olarak açık kal 120 saniye wifi down olarak kal
-#	sh /sbin/wancheck.sh	# Wan0-WanX durumlarını kontrol et, aktif ya da pasif yap
- 	wifi up && sleep 4 && iw phy0 set txpower limit 2000 && sleep 56	# 14s win xp ip alıyor 18s Cirali every 60s 40s every 120s
-  if [ -z "$($SW)" ] # recheck wifi is connected users?
-  then
+	echo "Wifi is already OFF" >> ${LOG}
+	# ÇBP ->60 saniye boyunca txpower 20dbm (EIRP Turkey) olarak açık kal 120 saniye wifi down olarak kal	
+	# /sbin/wancheck.sh	# Wan0-WanX durumlarını kontrol et, aktif ya da pasif yap
+	wifi up && sleep 4 && iw phy0 set txpower limit 2000 && sleep 56 # 14s win xp ip alıyor 18s Cirali every 60s 40s every 120s
+if [ $(expr length "$($SW)") -eq 0 ] # recheck wifi is connected users?,	#Kaynak1, #Kaynak2
+then
 	echo "No-one is connected" >> ${LOG}
-	wifi down	# Check if anyone is connected else wifi down timeout 120 second
-  fi	# SON
+	wifi down # Check if anyone is connected else wifi down timeout 120 second
+fi
 else
 	echo "Wifi is ON -> Someone is connected to AP txpower auto" >> ${LOG}
 	iw phy phy0 set txpower auto
 fi
-
-# script çalışması bitti, processes dosyasını silelim
-rm $PSNAME
