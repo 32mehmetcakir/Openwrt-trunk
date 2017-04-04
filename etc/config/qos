@@ -1,10 +1,51 @@
 
-config interface 'wwan'
+config classify
+	option target 'Express'
+	option srchost '192.168.3.5'
+	option comment 'Mehmet IP BW %100'
+
+config classify
+	option target 'Express'
+	option srchost '192.168.4.5'
+	option comment 'Mehmet IP BW %100'
+
+config classify
+	option target 'Express'
+	option srchost '192.168.4.6'
+	option comment 'Mehmet IP BW %100'
+
+config classify
+	option target 'Normal'
+	option srchost '192.168.3.50'
+	option comment 'Cirali IP BW %26'
+
+config classify
+	option target 'Normal'
+	option srchost '192.168.4.50'
+	option comment 'Cirali IP BW %26'
+
+config classify
+	option target 'Bulk'
+	option comment 'Misafir IP BW %7'
+
+config interface 'wan'
 	option classgroup 'Default'
 	option enabled '1'
-	option download '8192'
 	option upload '2048'
+	option download '16384'
 
+config interface 'wan2'
+	option classgroup 'Default'
+	option enabled '1'
+	option upload '2048'
+	option download '16384'
+
+config interface 'wan3'
+	option classgroup 'Default'
+	option enabled '1'
+	option upload '2048'
+	option download '16384'
+	
 config default
 	option target 'Express'
 	option proto 'udp'
@@ -35,14 +76,14 @@ config class 'Express'
 	option packetsize '1000'
 	option avgrate '50'
 	option priority '10'
-	option limitrate '100'
+	option limitrate '100'	#Bant genişliğinin 100% ünü kullanıyor. (Bandwidth=100%, ~16Mbps)
 
 config class 'Normal'
 	option packetsize '1500'
 	option packetdelay '100'
 	option avgrate '10'
 	option priority '5'
-	option limitrate '26'
+	option limitrate '11'	#Bant genişliğinin 11% ini kullanıyor. (Bandwidth=11%, ~1,76Mbps)
 
 config class 'Normal_down'
 	option avgrate '20'
@@ -50,34 +91,4 @@ config class 'Normal_down'
 config class 'Bulk'
 	option avgrate '1'
 	option packetdelay '200'
-	option limitrate '7'
-
-config classify
-	option target 'Express'
-	option srchost '192.168.3.5'
-	option comment 'Mehmet IP BW %100'
-
-config classify
-	option target 'Express'
-	option srchost '192.168.3.6'
-	option comment 'Mehmet IP BW %100'
-
-config classify
-	option target 'Express'
-	option srchost '192.168.4.5'
-	option comment 'Mehmet IP BW %100'
-
-config classify
-	option target 'Normal'
-	option srchost '192.168.3.50'
-	option comment 'Cirali IP BW %26'
-
-config classify
-	option target 'Normal'
-	option srchost '192.168.4.50'
-	option comment 'Cirali IP BW %26'
-
-config classify
-	option target 'Bulk'
-	option comment 'Misafir IP BW %7'
-
+	option limitrate '7'	#Bant genişliğinin 7% sini kullanıyor. (Bandwidth=7%, ~1,12Mbps)
