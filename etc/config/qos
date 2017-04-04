@@ -83,7 +83,7 @@ config class 'Normal'
 	option packetdelay '100'
 	option avgrate '10'
 	option priority '5'
-	option limitrate '11'	#Bant genişliğinin 11% ini kullanıyor. (Bandwidth=11%, ~1,76Mbps)
+	option limitrate '16'	#Bant genişliğinin 16% sını kullanıyor. (Bandwidth=16%, ~2,56Mbps)
 
 config class 'Normal_down'
 	option avgrate '20'
