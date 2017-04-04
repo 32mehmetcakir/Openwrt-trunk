@@ -1,0 +1,83 @@
+#!/bin/sh
+#Kaynak1: http://stackoverflow.com/questions/18123211/checking-host-availability-by-using-ping-in-bash-scripts
+#Kaynak2: http://www.macfreek.nl/memory/OpenWRT_Network_Configuration
+
+WanCheck=1	# Wan check edilsin? (0,1)
+Wan2Check=0	# Wan2 check edilsin? (0,1)
+Wan3Check=1	# Wan3 check edilsin? (0,1)
+
+# Öncelikle Wan,Wan2,Wan3 enable edilsin
+if [ $WanCheck -eq 1 ]
+then
+WanDisabled=$(uci get wireless.@wifi-iface[1].disabled)
+	if [ $WanDisabled -eq 1 ]
+	then
+	uci set wireless.@wifi-iface[1].disabled=0
+	fi
+fi
+
+if [ $Wan2Check -eq 1 ]
+then
+Wan2Disabled=$(uci get wireless.@wifi-iface[2].disabled)
+	if [ $Wan2Disabled -eq 1 ]
+	then
+	uci set wireless.@wifi-iface[2].disabled=0
+	fi
+fi
+
+if [ $Wan3Check -eq 1 ]
+then
+Wan3Disabled=$(uci get wireless.@wifi-iface[3].disabled)
+	if [ $Wan3Disabled -eq 1 ]
+	then
+	uci set wireless.@wifi-iface[3].disabled=0
+	fi
+fi
+uci commit wireless && wifi && sleep 14	# Değişiklikleri uygula
+
+# Şimdi ping kontolü yapılsın ve başarısız olanlar tekrar disabled edilsin
+if [ $WanCheck -eq 1 ]
+then
+WanDisabled=$(uci get wireless.@wifi-iface[1].disabled)
+	if [ $WanDisabled -eq 0 ]
+	then
+	WanGatewayIp=$(uci get network.wan.gateway)
+		if ping -c 1 $WanGatewayIp &> /dev/null
+		then
+		echo "Wan GatewayIp ping OK"	#1	# Başarılı ping
+		else
+		uci set wireless.@wifi-iface[1].disabled=1	#echo 0	# Ping başarısız Wan disabled edilsin
+		fi
+	fi
+fi
+
+if [ $Wan2Check -eq 1 ]
+then
+Wan2Disabled=$(uci get wireless.@wifi-iface[2].disabled)
+	if [ $Wan2Disabled -eq 0 ]
+	then
+	Wan2GatewayIp=$(uci get network.wan2.gateway)
+		if ping -c 1 $Wan2GatewayIp &> /dev/null
+		then
+		echo "Wan2 GatewayIp ping OK"	#1	# Başarılı ping
+		else
+		uci set wireless.@wifi-iface[2].disabled=1	#echo 0	# Ping başarısız Wan2 disabled edilsin
+		fi
+	fi
+fi
+
+if [ $Wan3Check -eq 1 ]
+then
+Wan3Disabled=$(uci get wireless.@wifi-iface[3].disabled)
+	if [ $Wan3Disabled -eq 0 ]
+	then
+	Wan3GatewayIp=$(uci get network.wan3.gateway)
+		if ping -c 1 $Wan3GatewayIp &> /dev/null
+		then
+		echo "Wan3 GatewayIp ping OK"	#1	# Başarılı ping
+		else
+		uci set wireless.@wifi-iface[3].disabled=1	#echo 0	# Ping başarısız Wan2 disabled edilsin
+		fi
+	fi
+fi
+uci commit wireless && wifi	# Değişiklikleri uygula
