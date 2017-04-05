@@ -1,0 +1,20 @@
+# adapt PATH to your needs
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/usr/bin:/tmp/usr/sbin
+
+# Her 10 dk arayla Qos uygulamasını yeniden başlat ve bantgenişliğini tam kullan.
+# */10 * * * * /etc/init.d/qos restart
+
+# Her 15 dk arayla FTP sunucusuna autowifi log ve interface Bandwidth değerlerini upload et.
+# */15 * * * * /sbin/ftpistatistikyedekle
+
+# set cronjob to every 15-->3 minutes:
+*/3 * * * * /sbin/autowifipowersave
+
+# Her 5 dk arayla mwan3 wan,wan2,etc... durumlarını kontrol et online yoksa restart yap (Sadece tek wan ise)
+# */5 * * * * /etc/crontabs/mwan3_online_check
+
+# interface bandwidth(vnstat) database rutin guncelle
+# */2 * * * * /etc/crontabs/vnstat_cron
+
+# per user bandwidth(wrtbwmon) database rutin guncelle
+# */2 * * * * /etc/crontabs/wrtbwmon_cron
