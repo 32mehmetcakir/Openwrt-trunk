@@ -1,9 +1,6 @@
 # adapt PATH to your needs
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/tmp/usr/bin:/tmp/usr/sbin
 
-# Her 10 dk arayla Qos uygulamasını yeniden başlat ve bantgenişliğini tam kullan.
-# */10 * * * * /etc/init.d/qos restart
-
 # Her 15 dk arayla FTP sunucusuna autowifi log ve interface Bandwidth değerlerini upload et.
 # */15 * * * * /sbin/ftpistatistikyedekle
 
