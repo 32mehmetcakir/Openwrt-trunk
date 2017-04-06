@@ -42,6 +42,7 @@ then
 	/sbin/wancheck	# Wan0-WanX durumlarını kontrol et, aktif ya da pasif yap
 	iw phy0 set txpower limit 2000 && sleep 46 # 14s win xp ip alıyor 18s Cirali every 60s 40s every 120s
 	/etc/init.d/qos restart	# Qos ayarlarının tam uygulanması icin restart edildi
+	/usr/sbin/mwan3 restart	# multiwan3 ayarlarının tam uygulanması icin restart edildi
 if [ $(expr length "$($SW)") -eq 0 ] # recheck wifi is connected users?,	#Kaynak1, #Kaynak2
 then
 	echo "No-one is connected" >> ${LOG}
