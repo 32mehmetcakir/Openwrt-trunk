@@ -1,8 +1,1 @@
 
-#!/bin/sh
-if [ -z "$(/usr/sbin/mwan3 interfaces | grep 'online')" ]; then
-/usr/sbin/mwan3 restart
-echo "mwan3 restarting..."
-else
-echo "mwan3 is online. Hiçbir işlem yapılmadan devam ediliyor..."
-fi
